@@ -1,0 +1,32 @@
+name: Test Full Stack Application
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build and start services with Docker Compose
+        run: |
+          docker compose build
+          docker compose up -d
+
+      - name: Wait for services to start
+        run: sleep 20
+
+      - name: Test Backend Health Check
+        run: curl -f http://localhost:8000/api/v1/utils/health-check
+
+      - name: Test Frontend is up
+        run: curl -f http://localhost:5173
+
+      - name: Tear down services
+        run: docker compose down -v --remove-orphans
