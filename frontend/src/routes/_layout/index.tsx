@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_layout/")({
 });
 
 function Dashboard() {
-  const { user: currentUser } = useAuth();
+  useAuth();
 
   return (
     <Container maxW="full" h="100vh">
