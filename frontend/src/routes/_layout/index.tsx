@@ -1,25 +1,53 @@
-import { Box, Container, Text } from "@chakra-ui/react"
-import { createFileRoute } from "@tanstack/react-router"
+import { Box, Container, Flex, VStack } from "@chakra-ui/react";
+import { createFileRoute } from "@tanstack/react-router";
 
-import useAuth from "@/hooks/useAuth"
+import useAuth from "@/hooks/useAuth";
+import ChatBox from "@/components/Chat/chatBox";
+import AvailableAppointments from "@/components/Mdashboard/AvailableAppointments";
+import WeeklyPatients from "@/components/Mdashboard/weeklyPatients";
+// Import the new PatientsList
+import PatientsList from "@/components/Mdashboard/patientsList";
+
 
 export const Route = createFileRoute("/_layout/")({
   component: Dashboard,
-})
+});
 
 function Dashboard() {
-  const { user: currentUser } = useAuth()
+  const { user: currentUser } = useAuth();
 
   return (
-    <>
-      <Container maxW="full">
-        <Box pt={12} m={4}>
-          <Text fontSize="2xl" truncate maxW="sm">
-            Hi, {currentUser?.full_name || currentUser?.email} 👋🏼
-          </Text>
-          <Text>Welcome back, nice to see you again!</Text>
+    <Container maxW="full" h="100vh">
+      <Flex>
+        {/* LEFT COLUMN */}
+        <VStack
+          //spacing={4}
+          align="stretch"
+          p={4}
+          w={{ base: "100%", md: "70%" }}
+          bg="gray.50"
+        >
+          {/* Existing components */}
+          <AvailableAppointments />
+          <WeeklyPatients />
+
+          {/* New Search Zone */}
+          <PatientsList />
+        </VStack>
+
+        {/* RIGHT COLUMN: Chat Box */}
+        <Box
+          w={{ base: "100%", md: "30%" }}
+          p={4}
+          ml="auto"
+          borderLeft="1px solid #ccc"
+          bg="white"
+        >
+          <ChatBox />
         </Box>
-      </Container>
-    </>
-  )
+      </Flex>
+    </Container>
+  );
 }
+
+export default Dashboard;
