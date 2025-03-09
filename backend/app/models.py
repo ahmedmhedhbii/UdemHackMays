@@ -1,6 +1,5 @@
 import uuid
 
-from numba import Optional
 from enum import Enum
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel, Column, LargeBinary
@@ -183,9 +182,9 @@ class MedicalRecord(SQLModel, table=True):
     patient_id: uuid.UUID = Field(foreign_key="user.id")
     record_date: str = Field(max_length=10)  # Format "YYYY-MM-DD"
     description: str = Field(max_length=1024)
-    pdf_resume: Optional[bytes] = Field(default=None, sa_column=Column(LargeBinary))
-    scanner_image: Optional[bytes] = Field(default=None, sa_column=Column(LargeBinary))
-    patient: Optional[User] = Relationship(back_populates="medical_records")
+    pdf_resume: bytes | None = Field(default=None, sa_column=Column(LargeBinary))
+    scanner_image: bytes | None = Field(default=None, sa_column=Column(LargeBinary))
+    patient: User | None = Relationship(back_populates="medical_records")
 
 class TranslationRequest(SQLModel):
     input_str: str
