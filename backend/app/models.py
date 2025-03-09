@@ -91,8 +91,3 @@ class ItemPublic(ItemBase):
 class ItemsPublic(SQLModel):
     data: list[ItemPublic]
     count: int
-
-
-# Generic message
-class Message(SQLModel):
-    message: str
