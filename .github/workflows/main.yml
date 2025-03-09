@@ -14,12 +14,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build and start services with Docker Compose
-        run: |
-          docker compose build
-          docker compose up -d
+      - name: Build Docker Images
+        run: docker compose build
 
-      - name: Wait for services to start
+      - name: Start Services
+        run: docker compose up -d
+
+      - name: Wait for services to be Ready
         run: sleep 20
 
       - name: Test Backend Health Check
