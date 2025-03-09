@@ -20,7 +20,7 @@ class UserBase(SQLModel):
     role: UserRole = Field(
         default=UserRole.patient,
         sa_column=Column(SAEnum(UserRole, name='userrole'), default=UserRole.patient)
-    )
+    )#
 
 
 # Properties to receive via API on creation
