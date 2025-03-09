@@ -1,4 +1,5 @@
 from sqlmodel import SQLModel, Field
+from __future__ import annotations
 
 # JSON payload containing access token
 class Token(SQLModel):
