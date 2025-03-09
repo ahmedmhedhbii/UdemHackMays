@@ -2,7 +2,7 @@ import uuid
 
 from enum import Enum
 from pydantic import EmailStr
-from sqlmodel import Field, Relationship, SQLModel, Column, LargeBinary
+from sqlmodel import Field, Relationship, SQLModel, Column, LargeBinary, Enum as SAEnum
 from typing import Optional
 
 
@@ -17,7 +17,10 @@ class UserBase(SQLModel):
     is_active: bool = True
     is_superuser: bool = False
     full_name: str | None = Field(default=None, max_length=255)
-    role: UserRole = Field(default=UserRole.patient)
+    role: UserRole = Field(
+        default=UserRole.patient,
+        sa_column=Column(SAEnum(UserRole), default=UserRole.patient)
+    )
 
 
 # Properties to receive via API on creation
