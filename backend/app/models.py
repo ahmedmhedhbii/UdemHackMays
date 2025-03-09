@@ -3,6 +3,8 @@ import uuid
 from enum import Enum
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel, Column, LargeBinary
+from typing import Optional
+
 
 class UserRole(str, Enum):
     doctor = "doctor"
@@ -22,11 +24,11 @@ class UserBase(SQLModel):
 class UserCreate(UserBase):
     password: str = Field(min_length=8, max_length=40)
     # For doctors:
-    specialization: Optional[str] = Field(default=None, max_length=255)
+    specialization: str | None = Field(default=None, max_length=255)
     # For patients:
-    date_of_birth: Optional[str] = Field(default=None, max_length=10)
+    date_of_birth: str | None = Field(default=None, max_length=10)
     # For patients: assign a doctor (if known)
-    doctor_id: Optional[uuid.UUID] = Field(default=None, foreign_key="user.id")
+    doctor_id: uuid.UUID | None = Field(default=None, foreign_key="user.id")
 
 
 class UserRegister(SQLModel):
@@ -56,12 +58,12 @@ class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
     # Extra fields that apply based on role:
-    specialization: Optional[str] = Field(default=None, max_length=255)  # only for doctors
-    date_of_birth: Optional[str] = Field(default=None, max_length=10)  # only for patients
-    doctor_id: Optional[uuid.UUID] = Field(default=None, foreign_key="user.id")
+    specialization: str | None = Field(default=None, max_length=255)  # only for doctors
+    date_of_birth: str | None = Field(default=None, max_length=10)  # only for patients
+    doctor_id: uuid.UUID | None = Field(default=None, foreign_key="user.id")
 
     # Relationship: if this user is a patient, the 'doctor' relationship points to a doctor record.
-    doctor: Optional["User"] = Relationship(
+    doctor: Optional["User"] | None = Relationship(
         back_populates="patients",
         sa_relationship_kwargs={"remote_side": "User.id"}
     )
@@ -83,7 +85,7 @@ class User(UserBase, table=True):
     # A patient can have many medical records.
     medical_records: list["MedicalRecord"] = Relationship(back_populates="patient")
     # Other relationships (e.g., items)
-    items: list["Item"] = Relationship(back_populates="owner", cascade="delete")
+    items: list["Item"] = Relationship(back_populates="owner", sa_relationship_kwargs={"cascade": "delete"})
 
 
 
@@ -166,11 +168,11 @@ class Appointment(SQLModel, table=True):
     reason: str | None = Field(default=None, max_length=255)
 
     # Relationships
-    patient: Optional[User] = Relationship(
+    patient: User | None = Relationship(
         back_populates="appointments_as_patient",
         sa_relationship_kwargs={"foreign_keys": "[Appointment.patient_id]"}
     )
-    doctor: Optional[User] = Relationship(
+    doctor: User | None = Relationship(
         back_populates="appointments_as_doctor",
         sa_relationship_kwargs={"foreign_keys": "[Appointment.doctor_id]"}
     )
