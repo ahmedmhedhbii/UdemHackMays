@@ -5,10 +5,12 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from datetime import datetime
+import httpx
 
 from app.core.db import get_session
-from app.models import Notification, User, Message
+from app.models import LLMAnalyzeRequest, Notification, User, Message
 from app.api.deps import get_current_active_doctor
+from app.services.llm_service import generate_content
 
 router = APIRouter(prefix="/doctor", tags=["doctor"])
 
@@ -63,23 +65,23 @@ def get_message_history(
 
 
 @router.post("/llm/analyze", response_model=dict)
-def analyze_patient_data(
-    patient_id: uuid.UUID,
-    session: Session = Depends(get_session),
+def gemini_llm_analyze(
+    request: LLMAnalyzeRequest,
     current_doctor: User = Depends(get_current_active_doctor)
 ):
     """
-    Simule l'appel à un module LLM pour analyser des données médicales (OCR, scans, etc.).
-    Renvoie un résultat fictif.
+    Utilise l'API Gemini (ou un service LLM) pour générer du contenu à partir d'un prompt.
     """
-    # Ici, tu appellerais ton modèle LLM ou tes services d'analyse.
-    # Pour l'exemple, on renvoie un résultat simulé.
-    analysis_result = {
-        "patient_id": str(patient_id),
-        "analysis": "Simulated LLM analysis result: All metrics are within normal ranges.",
-        "timestamp": datetime.utcnow().isoformat()
-    }
-    return analysis_result
+    try:
+        generated_text = generate_content(request.prompt)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Gemini API error: {e}"
+        )
+    return {"generated_text": generated_text}
+
+
 
 
 @router.post("/messages/send", response_model=Message)
