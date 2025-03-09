@@ -1,3 +1,4 @@
+from datetime import datetime
 import uuid
 
 from enum import Enum
@@ -183,3 +184,14 @@ class MedicalRecord(SQLModel, table=True):
 
 class TranslationRequest(SQLModel):
     input_str: str
+
+class Notification(SQLModel, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    doctor_id: uuid.UUID = Field(foreign_key="user.id")
+    type: str = Field(max_length=50)  # Par exemple: "message", "consultation", "analysis"
+    content: Optional[str] = None
+    pdf_url: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    # Relation
+    doctor: Optional["User"] = Relationship(back_populates="notifications")

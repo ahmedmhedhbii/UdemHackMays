@@ -55,3 +55,11 @@ def get_current_active_superuser(current_user: CurrentUser) -> User:
             status_code=403, detail="The user doesn't have enough privileges"
         )
     return current_user
+
+def get_current_active_doctor(current_user: User = Depends(get_current_active_superuser)) -> User:
+    if not current_user.specialization:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not a doctor"
+        )
+    return current_user
