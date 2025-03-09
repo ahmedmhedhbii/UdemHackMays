@@ -2,9 +2,17 @@ from datetime import datetime
 import uuid
 
 from enum import Enum
+
+class NotificationTypeEnum(str, Enum):
+    message = "message"
+    consultation = "consultation"
+    analysis = "analysis"
+
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel, Column, LargeBinary
+from sqlalchemy import Enum as SAEnum
 from typing import Optional
+from pydantic import BaseModel
 
 # Shared properties
 class UserBase(SQLModel):
@@ -57,7 +65,7 @@ class User(UserBase, table=True):
     doctor_id: uuid.UUID | None = Field(default=None, foreign_key="user.id")
 
     # Relationship: if this user is a patient, the 'doctor' relationship points to a doctor record.
-    doctor: Optional["User"] | None = Relationship(
+    doctor: Optional["User"] = Relationship(
         back_populates="patients",
         sa_relationship_kwargs={"remote_side": "User.id"}
     )
@@ -80,6 +88,9 @@ class User(UserBase, table=True):
     medical_records: list["MedicalRecord"] = Relationship(back_populates="patient")
     # Other relationships (e.g., items)
     items: list["Item"] = Relationship(back_populates="owner", sa_relationship_kwargs={"cascade": "delete"})
+
+    # Nouvelle relation : Notifications pour le médecin
+    notifications: list["Notification"] = Relationship(back_populates="doctor")
 
 
 
@@ -188,10 +199,15 @@ class TranslationRequest(SQLModel):
 class Notification(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     doctor_id: uuid.UUID = Field(foreign_key="user.id")
-    type: str = Field(max_length=50)  # Par exemple: "message", "consultation", "analysis"
-    content: Optional[str] = None
-    pdf_url: Optional[str] = None
+    type: NotificationTypeEnum = Field(
+        sa_column=Column(SAEnum(NotificationTypeEnum, name="notificationtype", create_constraint=True))
+    )
+    content: Optional[str] = Field(default=None, max_length=255)
+    pdf_url: Optional[str] = Field(default=None, max_length=255)
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
-    # Relation
+    # Relation avec l'utilisateur (docteur)
     doctor: Optional["User"] = Relationship(back_populates="notifications")
+
+class LLMAnalyzeRequest(BaseModel):
+    prompt: str

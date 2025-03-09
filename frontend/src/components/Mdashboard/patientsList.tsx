@@ -56,7 +56,7 @@ function PatientsList() {
           Search
         </Button>
       </HStack>
-      <VStack align="stretch" spacing={2}>
+      <VStack align="stretch" gap={2}>
         {filteredPatients.map((patient) => (
           <Box
             key={patient.id}

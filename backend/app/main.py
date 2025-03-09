@@ -1,11 +1,17 @@
 import sentry_sdk
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from starlette.middleware.cors import CORSMiddleware
+from sqlmodel import Session
 
 from app.api.main import api_router
 from app.core.config import settings
-
+from app.initial_data import populate_db
+from app.core.db import engine
 
 def custom_generate_unique_id(route: APIRoute) -> str:
     tag = route.tags[0] if route.tags else "default"
@@ -32,3 +38,11 @@ if settings.all_cors_origins:
     )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+# Événement de démarrage pour peupler la base
+@app.on_event("startup")
+def on_startup():
+    logger.info("Application startup: populating database.")
+    if settings.ENVIRONMENT == "local":
+        with Session(engine) as session:
+            populate_db()

@@ -1,4 +1,4 @@
-// routes/_layout/client/$clientId.tsx
+// routes/_layout/client/clientId.tsx
 
 import { createFileRoute } from "@tanstack/react-router";
 import { Box, Heading, Text, VStack, HStack } from "@chakra-ui/react";
@@ -78,7 +78,7 @@ function ClientDetails() {
       <Heading mb={4} textAlign="center">
         Client Details
       </Heading>
-      <VStack align="start" spacing={4}>
+      <VStack align="start" gap={4}>
         <HStack>
           <Text fontWeight="bold">Full Name:</Text>
           <Text>
@@ -113,7 +113,7 @@ function ClientDetails() {
             Past Consultations:
           </Text>
           {client.pastConsultations.length > 0 ? (
-            <VStack align="start" spacing={1}>
+            <VStack align="start" gap={1}>
               {client.pastConsultations.map((consultation, idx) => (
                 <Text key={idx}>• {consultation}</Text>
               ))}
@@ -127,7 +127,7 @@ function ClientDetails() {
             Current Medications:
           </Text>
           {client.currentMedications.length > 0 ? (
-            <VStack align="start" spacing={1}>
+            <VStack align="start" gap={1}>
               {client.currentMedications.map((med, idx) => (
                 <Text key={idx}>• {med}</Text>
               ))}
