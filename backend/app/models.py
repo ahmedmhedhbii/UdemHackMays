@@ -57,7 +57,7 @@ class User(UserBase, table=True):
     doctor_id: uuid.UUID | None = Field(default=None, foreign_key="user.id")
 
     # Relationship: if this user is a patient, the 'doctor' relationship points to a doctor record.
-    doctor: Optional["User"] | None = Relationship(
+    doctor: Optional["User"] = Relationship(
         back_populates="patients",
         sa_relationship_kwargs={"remote_side": "User.id"}
     )
@@ -80,6 +80,9 @@ class User(UserBase, table=True):
     medical_records: list["MedicalRecord"] = Relationship(back_populates="patient")
     # Other relationships (e.g., items)
     items: list["Item"] = Relationship(back_populates="owner", sa_relationship_kwargs={"cascade": "delete"})
+
+    # Nouvelle relation : Notifications pour le médecin
+    notifications: list["Notification"] = Relationship(back_populates="doctor")
 
 
 
@@ -188,10 +191,10 @@ class TranslationRequest(SQLModel):
 class Notification(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     doctor_id: uuid.UUID = Field(foreign_key="user.id")
-    type: str = Field(max_length=50)  # Par exemple: "message", "consultation", "analysis"
-    content: Optional[str] = None
-    pdf_url: Optional[str] = None
+    type: str = Field(max_length=50)  # ex: "message", "consultation", "analysis"
+    content: Optional[str] = None  # Détails de la notification
+    pdf_url: Optional[str] = None  # Pour un résultat d'analyse en PDF
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
-    # Relation
+    # Relation : Le médecin auquel appartient la notification
     doctor: Optional["User"] = Relationship(back_populates="notifications")
