@@ -19,7 +19,7 @@ class UserBase(SQLModel):
     full_name: str | None = Field(default=None, max_length=255)
     role: UserRole = Field(
         default=UserRole.patient,
-        sa_column=Column(SAEnum(UserRole), default=UserRole.patient)
+        sa_column=Column(SAEnum(UserRole, name='userrole'), default=UserRole.patient)
     )
 
 
